@@ -1,0 +1,1163 @@
+version: 1
+source: DataHub
+nodes:
+- name: Thông tin tiền gửi
+  description: ''
+  terms:
+  - name: Tài khoản kế toán ghi có
+    description: ''
+  - name: Ngày đóng tài khoản
+    description: ''
+  - name: Số dư mở tài khoản quy đổi
+    description: ''
+  - name: Phat sinh tăng trong ngày nguyên tệ
+    description: ''
+  - name: Số dư quy đổi
+    description: ''
+  - name: Loại tiền tệ gắn với tài khoản
+    description: ''
+  - name: Số dư nguyên tệ
+    description: ''
+  - name: Số dư mở tài khoản nguyên tệ
+    description: ''
+  - name: Số dư bị đóng băng
+    description: ''
+  - name: Phát sinh giảm trong ngày quy đổi
+    description: ''
+  - name: Tài khoản kế toán ghi nợ
+    description: ''
+  - name: Số dư khả dụng
+    description: ''
+  - name: Nhân viên duyệt
+    description: ''
+  - name: Phát sinh giảm trong ngày nguyên tệ
+    description: ''
+  - name: Số tài khoản
+    description: ''
+  - name: Trạng thái đóng băng
+    description: ''
+  - name: Số ngày đóng băng
+    description: ''
+  - name: Lãi cộng dồn ghi có
+    description: ''
+  - name: Trạng thái khóa tài khoản
+    description: ''
+  - name: Lãi cộng dồn ghi nợ
+    description: ''
+  - name: Ngày mở tài khoản
+    description: ''
+  - name: Trạng thái duyệt của tài khoản
+    description: ''
+  - name: Lãi suất
+    description: "Gồm lãi suất không kì hạn và lãi suất có kì hạn gắn với từng số\
+      \ tài khoản:  \nCông thức tính toán được quy định như sau:  \n\\+ Với tài khoản\
+      \ tiền gửi không kì hạn hoặc tài khoản tát toán trước hạn sẽ lĩnh lãi suất không\
+      \ kì hạn:\n\ndeclare p\\_brn in varchar2,\n\np\\_ac\\_no IN VARCHAR2,\n\np\\\
+      _date in date\n\nl\\_aclass VARCHAR2(99);\n\nl\\_ccy VARCHAR2(9);\n\nl\\_amount\
+      \ NUMBER;\n\nl\\_auto\\_rollover VARCHAR2(1);\n\nl\\_default\\_tenor\\_days\
+      \ NUMBER;\n\nl\\_default\\_tenor\\_months NUMBER;\n\nl\\_default\\_tenor\\_years\
+      \ NUMBER;\n\nl\\_mat\\_dt DATE;\n\nl\\_open\\_dt DATE;\n\nl\\_next\\_mat\\_dt\
+      \ DATE;\n\nl\\_rate NUMBER;\n\nl\\_rule VARCHAR2(4);\n\nl\\_prod\\_code VARCHAR2(4);\n\
+      \nl\\_branch\\_code VARCHAR2(6);\n\nl\\_passbook\\_facility VARCHAR2(1);\n\n\
+      l\\_rate\\_code VARCHAR2(255);\n\nl\\_ude\\_eff\\_dt DATE;\n\nl\\_sys\\_cur\
+      \ SYS\\_REFCURSOR;\n\nl\\_check NUMBER;\n\np\\_rate number;\n\nl\\_khut NUMBER;\n\
+      \nl\\_code varchar2(50);\n\nTYPE ty\\_rule\\_frm IS RECORD(\n\ncond VARCHAR2(255),\n\
+      \nrets VARCHAR2(255));\n\nl\\_rule\\_frm ty\\_rule\\_frm;\n\nl\\_string VARCHAR2(255);\n\
+      \nl\\_boolean NUMBER;\n\nBEGIN\n\n&nbsp;\n\nl\\_open\\_dt := p\\_date;\n\nBEGIN\n\
+      \nSELECT branch\\_code,\n\naccount\\_class,\n\nccy,\n\ndecode(ccy, 'VND', lcy\\\
+      _curr\\_balance, acy\\_curr\\_balance)\n\nINTO l\\_branch\\_code, l\\_aclass,\
+      \ l\\_ccy, l\\_amount\n\nFROM STG\\_sttm\\_cust\\_account\n\nWHERE cust\\_ac\\\
+      _no = p\\_ac\\_no\n\nand branch\\_code = p\\_brn;\n\nEXCEPTION\n\nWHEN no\\\
+      _data\\_found THEN\n\nl\\_branch\\_code := null;\n\nEND;\n\n&nbsp;\n\n/\\*BEGIN\n\
+      \nSELECT int\\_start\\_date\n\nINTO l\\_open\\_dt\n\nFROM STG\\_ic\\_STG\\_ictm\\\
+      _acc\n\nWHERE acc = p\\_ac\\_no;\n\nEXCEPTION\n\nWHEN no\\_data\\_found THEN\n\
+      \nl\\_open\\_dt := null;\n\nEND;\\*/\n\n&nbsp;\n\nBEGIN\n\n&nbsp;\n\nSELECT\
+      \ DISTINCT t.product\\_code\n\nINTO l\\_prod\\_code\n\nFROM STG\\_Ictm\\_Pr\\\
+      _Int\\_aclass t\n\nWHERE t.aclass = l\\_aclass\n\nAND t.ccy = l\\_ccy;\n\nEXCEPTION\n\
+      \nWHEN OTHERS THEN\n\nnull;\n\n&nbsp;\n\nEND;\n\n&nbsp;\n\nBEGIN\n\nSELECT rule\n\
+      \nINTO l\\_rule\n\nFROM STG\\_Ictm\\_Pr\\_Int\n\nWHERE product\\_code = l\\\
+      _prod\\_code;\n\nEXCEPTION\n\nWHEN no\\_data\\_found THEN\n\nNULL;\n\nEND;\n\
+      \n\\--dbms\\_output.put\\_line('l\\_prod\\_code:'||l\\_prod\\_code);\n\nBEGIN\n\
+      \n&nbsp;\n\nBEGIN\n\n&nbsp;\n\nSELECT ADD\\_FLD\\_3\n\nINTO l\\_rate\\_code\n\
+      \nFROM /_STTM\\_STATIC\\_TYPE_/ RPTB\\_STATIC\\_TYPE C, STG\\_Ictm\\_Pr\\_Int\
+      \ D\n\nWHERE c.TYPE IN ('POTD', 'BATD')\n\nAND C.TYPE\\_VALUE = D.RULE\n\nAND\
+      \ D.PRODUCT\\_CODE = l\\_prod\\_code\n\nAND ADD\\_FLD\\_1 <= l\\_amount\n\n\
+      AND ADD\\_FLD\\_2 > l\\_amount\n\nAND ROWNUM = 1;\n\n&nbsp;\n\nBEGIN\n\nBEGIN\n\
+      \nSELECT nvl(ude\\_value, 0), rate\\_code\n\nINTO l\\_rate, l\\_rate\\_code\n\
+      \nFROM STG\\_ictm\\_acc\\_udevals\n\nWHERE ude\\_id = l\\_rate\\_code\n\nand\
+      \ acc = p\\_ac\\_no\n\nAND brn = l\\_branch\\_code\n\nAND RECORD\\_STAT = 'O'\n\
+      \nand auth\\_stat = 'A'\n\nAND ude\\_eff\\_dt IN (SELECT MAX(ude\\_eff\\_dt)\n\
+      \nFROM STG\\_ictm\\_acc\\_udevals\n\nWHERE acc = p\\_ac\\_no\n\nAND brn = l\\\
+      _branch\\_code\n\nAND RECORD\\_STAT = 'O'\n\nand auth\\_stat = 'A');\n\nEXCEPTION\n\
+      \nWHEN no\\_data\\_found THEN\n\nSELECT nvl(ude\\_value, 0), rate\\_code\n\n\
+      INTO l\\_rate, l\\_rate\\_code\n\nFROM STG\\_Ictm\\_Pr\\_Int\\_udevals\n\nWHERE\
+      \ product\\_code = l\\_prod\\_code\n\nAND aclass = l\\_aclass\n\nAND ude\\_id\
+      \ = l\\_rate\\_code\n\nAND ccy\\_code = l\\_ccy\n\n&nbsp;\n\nAND branch\\_code\
+      \ = 'ALL'\n\nAND ude\\_eff\\_dt IN\n\n(SELECT MAX(ude\\_eff\\_dt)\n\nFROM STG\\\
+      _Ictm\\_Pr\\_Int\\_udevals\n\nWHERE product\\_code = l\\_prod\\_code\n\nAND\
+      \ aclass = l\\_aclass\n\nAND ccy\\_code = l\\_ccy\n\n\\-- AND ude\\_eff\\_dt\
+      \ <= l\\_open\\_dt\n\n&nbsp;\n\nAND branch\\_code = 'ALL');\n\nEND;\n\n&nbsp;\n\
+      \nIF l\\_rate\\_code IS NOT NULL THEN\n\nSELECT l\\_rate + nvl(rate, 0)\n\n\
+      INTO l\\_rate\n\nFROM STG\\_ictm\\_rates\n\nWHERE rate\\_code = l\\_rate\\_code\n\
+      \nAND ccy\\_code = l\\_ccy\n\nAND record\\_stat = 'O'\n\nAND auth\\_stat = 'A'\n\
+      \nAND eff\\_dt IN (SELECT MAX(eff\\_dt)\n\nFROM STG\\_ictm\\_rates\n\nWHERE\
+      \ record\\_stat = 'O'\n\nAND auth\\_stat = 'A'\n\nAND ccy\\_code = l\\_ccy\n\
+      \nAND rate\\_code = l\\_rate\\_code\n\nAND eff\\_dt <= l\\_open\\_dt);\n\nEND\
+      \ IF;\n\np\\_rate := l\\_rate;\n\nEXCEPTION\n\nWHEN no\\_data\\_found THEN\n\
+      \nBEGIN\n\nBEGIN\n\nSELECT nvl(ude\\_value, 0), rate\\_code\n\nINTO l\\_rate,\
+      \ l\\_rate\\_code\n\nFROM STG\\_Ictm\\_Pr\\_Int\\_udevals\n\nWHERE product\\\
+      _code = l\\_prod\\_code\n\nAND aclass = l\\_aclass\n\nAND ude\\_id = 'RATE'\n\
+      \nAND ccy\\_code = l\\_ccy\n\n&nbsp;\n\nAND branch\\_code = l\\_branch\\_code\n\
+      \nAND ude\\_eff\\_dt IN (SELECT MAX(ude\\_eff\\_dt)\n\nFROM STG\\_Ictm\\_Pr\\\
+      _Int\\_udevals\n\nWHERE product\\_code = l\\_prod\\_code\n\nAND aclass = l\\\
+      _aclass\n\nAND ccy\\_code = l\\_ccy\n\nAND ude\\_eff\\_dt <= l\\_open\\_dt\n\
+      \n&nbsp;\n\n);\n\nEXCEPTION\n\nWHEN no\\_data\\_found THEN\n\nSELECT nvl(ude\\\
+      _value, 0), rate\\_code\n\nINTO l\\_rate, l\\_rate\\_code\n\nFROM STG\\_Ictm\\\
+      _Pr\\_Int\\_udevals\n\nWHERE product\\_code = l\\_prod\\_code\n\nAND aclass\
+      \ = l\\_aclass\n\nAND ude\\_id = 'RATE'\n\nAND ccy\\_code = l\\_ccy\n\n&nbsp;\n\
+      \nAND branch\\_code = 'ALL'\n\nAND ude\\_eff\\_dt IN\n\n(SELECT MAX(ude\\_eff\\\
+      _dt)\n\nFROM STG\\_Ictm\\_Pr\\_Int\\_udevals\n\nWHERE product\\_code = l\\_prod\\\
+      _code\n\nAND aclass = l\\_aclass\n\nAND ccy\\_code = l\\_ccy\n\nAND ude\\_eff\\\
+      _dt <= l\\_open\\_dt\n\nAND branch\\_code = 'ALL');\n\nEND;\n\n&nbsp;\n\nIF\
+      \ l\\_rate\\_code IS NOT NULL THEN\n\n&nbsp;\n\nBEGIN\n\nSELECT l\\_rate + nvl(rate,\
+      \ 0)\n\nINTO l\\_rate\n\nFROM STG\\_ictm\\_rates\n\nWHERE rate\\_code = l\\\
+      _rate\\_code\n\nAND ccy\\_code = l\\_ccy\n\nAND record\\_stat = 'O'\n\nAND auth\\\
+      _stat = 'A'\n\nAND branch\\_code = l\\_branch\\_code\n\nAND eff\\_dt IN (SELECT\
+      \ MAX(eff\\_dt)\n\nFROM STG\\_ictm\\_rates\n\nWHERE record\\_stat = 'O'\n\n\
+      AND auth\\_stat = 'A'\n\nAND ccy\\_code = l\\_ccy\n\nAND rate\\_code = l\\_rate\\\
+      _code\n\nAND eff\\_dt <= l\\_open\\_dt);\n\nEXCEPTION\n\nWHEN no\\_data\\_found\
+      \ THEN\n\nSELECT l\\_rate + nvl(rate, 0)\n\nINTO l\\_rate\n\nFROM STG\\_ictm\\\
+      _rates\n\nWHERE rate\\_code = l\\_rate\\_code\n\nAND ccy\\_code = l\\_ccy\n\n\
+      AND record\\_stat = 'O'\n\nAND auth\\_stat = 'A'\n\nAND branch\\_code = 'ALL'\n\
+      \nAND eff\\_dt IN (SELECT MAX(eff\\_dt)\n\nFROM STG\\_ictm\\_rates\n\nWHERE\
+      \ record\\_stat = 'O'\n\nAND auth\\_stat = 'A'\n\nAND ccy\\_code = l\\_ccy\n\
+      \nAND rate\\_code = l\\_rate\\_code\n\nAND branch\\_code = 'ALL'\n\nAND eff\\\
+      _dt <= l\\_open\\_dt);\n\nEND;\n\nEND IF;\n\np\\_rate := l\\_rate;\n\nEXCEPTION\n\
+      \nWHEN OTHERS THEN\n\nnull;\n\n&nbsp;\n\nEND;\n\nWHEN OTHERS THEN\n\np\\_rate\
+      \ := '0';\n\nEND;\n\nEXCEPTION\n\nWHEN no\\_data\\_found THEN\n\nBEGIN\n\nBEGIN\n\
+      \nSELECT ude\\_value\n\nINTO l\\_rate\n\nFROM STG\\_Ictm\\_Pr\\_Int\\_udevals\n\
+      \nWHERE product\\_code = l\\_prod\\_code\n\nAND aclass = l\\_aclass\n\nAND ude\\\
+      _id = 'RATE'\n\nAND ccy\\_code = l\\_ccy\n\nAND branch\\_code = l\\_branch\\\
+      _code\n\nAND ude\\_eff\\_dt IN\n\n(SELECT MAX(ude\\_eff\\_dt)\n\nFROM STG\\\
+      _Ictm\\_Pr\\_Int\\_udevals\n\nWHERE product\\_code = l\\_prod\\_code\n\nAND\
+      \ aclass = l\\_aclass\n\nAND ccy\\_code = l\\_ccy\n\nAND ude\\_eff\\_dt <= l\\\
+      _open\\_dt);\n\nEXCEPTION\n\nWHEN no\\_data\\_found THEN\n\nSELECT ude\\_value\n\
+      \nINTO l\\_rate\n\nFROM STG\\_Ictm\\_Pr\\_Int\\_udevals\n\nWHERE product\\_code\
+      \ = l\\_prod\\_code\n\nAND aclass = l\\_aclass\n\nAND ude\\_id = 'RATE'\n\n\
+      AND ccy\\_code = l\\_ccy\n\nAND branch\\_code = 'ALL'\n\nAND ude\\_eff\\_dt\
+      \ IN\n\n(SELECT MAX(ude\\_eff\\_dt)\n\nFROM STG\\_Ictm\\_Pr\\_Int\\_udevals\n\
+      \nWHERE product\\_code = l\\_prod\\_code\n\nAND aclass = l\\_aclass\n\nAND ccy\\\
+      _code = l\\_ccy\n\nAND ude\\_eff\\_dt <= l\\_open\\_dt\n\nAND branch\\_code\
+      \ = 'ALL');\n\nEND;\n\n&nbsp;\n\np\\_rate := l\\_rate;\n\nEXCEPTION\n\nWHEN\
+      \ OTHERS THEN\n\nnull;\n\nEND;\n\nWHEN OTHERS THEN\n\nBEGIN\n\nBEGIN\n\nSELECT\
+      \ ude\\_value\n\nINTO l\\_rate\n\nFROM STG\\_Ictm\\_Pr\\_Int\\_udevals\n\nWHERE\
+      \ product\\_code = l\\_prod\\_code\n\nAND aclass = l\\_aclass\n\nAND ude\\_id\
+      \ = 'RATE'\n\nAND ccy\\_code = l\\_ccy\n\nAND branch\\_code = l\\_branch\\_code\n\
+      \nAND ude\\_eff\\_dt IN\n\n(SELECT MAX(ude\\_eff\\_dt)\n\nFROM STG\\_Ictm\\\
+      _Pr\\_Int\\_udevals\n\nWHERE product\\_code = l\\_prod\\_code\n\nAND aclass\
+      \ = l\\_aclass\n\nAND ccy\\_code = l\\_ccy\n\nAND ude\\_eff\\_dt <= l\\_open\\\
+      _dt);\n\nEXCEPTION\n\nWHEN no\\_data\\_found THEN\n\nSELECT ude\\_value\n\n\
+      INTO l\\_rate\n\nFROM STG\\_Ictm\\_Pr\\_Int\\_udevals\n\nWHERE product\\_code\
+      \ = l\\_prod\\_code\n\nAND aclass = l\\_aclass\n\nAND ude\\_id = 'RATE'\n\n\
+      AND ccy\\_code = l\\_ccy\n\nAND branch\\_code = 'ALL'\n\nAND ude\\_eff\\_dt\
+      \ IN\n\n(SELECT MAX(ude\\_eff\\_dt)\n\nFROM STG\\_Ictm\\_Pr\\_Int\\_udevals\n\
+      \nWHERE product\\_code = l\\_prod\\_code\n\nAND aclass = l\\_aclass\n\nAND ccy\\\
+      _code = l\\_ccy\n\nAND ude\\_eff\\_dt <= l\\_open\\_dt\n\nAND branch\\_code\
+      \ = 'ALL');\n\nEND;\n\np\\_rate := l\\_rate;\n\nEXCEPTION\n\nWHEN OTHERS THEN\n\
+      \nreturn 0;\n\nEND;\n\nEND;\n\nEND;\n\n*   Với cong thức tính lãi của tài khoản\
+      \ thấu chi:\n    \n     function Fn\\_get\\_Ic\\_intrate\\_od(p\\_acc in varchar2,\
+      \ p\\_date in date)\n    \n    return number is\n    \n    &nbsp;\n    \n  \
+      \  l\\_date date;\n    \n    l\\_prod varchar2(99) default null;\n    \n   \
+      \ l\\_ret\\_Rate number := 0;\n    \n    l\\_ude STG\\_ictm\\_acc\\_udevals.ude\\\
+      _id%type := 'RATE\\_OD';\n    \n    begin\n    \n    \\--dbms\\_output.put\\\
+      _line('start');\n    \n    BEGIN\n    \n    SELECT UDE\\_VALUE\n    \n    INTO\
+      \ l\\_ret\\_Rate\n    \n    FROM STG\\_ictm\\_acc\\_udevals\n    \n    WHERE\
+      \ ACC = p\\_acc\n    \n    AND UDE\\_ID = l\\_ude\n    \n    AND RECORD\\_STAT\
+      \ = 'O'\n    \n    and auth\\_stat = 'A'\n    \n    AND PROD NOT IN ('VPDN',\
+      \ 'VPCN')\n    \n    AND UDE\\_EFF\\_DT = (SELECT MAX(UDE\\_EFF\\_DT)\n    \n\
+      \    FROM STG\\_ictm\\_acc\\_udevals\n    \n    WHERE ACC = p\\_acc\n    \n\
+      \    AND UDE\\_ID = l\\_ude\n    \n    AND RECORD\\_STAT = 'O'\n    \n    and\
+      \ auth\\_stat = 'A'\n    \n    AND PROD NOT IN ('VPDN', 'VPCN')\n    \n    and\
+      \ UDE\\_EFF\\_DT <= p\\_date);\n    \n    exception\n    \n    when others then\n\
+      \    \n    l\\_ret\\_Rate := 0;\n    \n    END;\n    \n    return l\\_ret\\\
+      _Rate;\n    \n    exception\n    \n    when others then\n    \n    &nbsp;\n\
+      \    \n    return 0;\n    \n    end Fn\\_get\\_Ic\\_intrate\\_od;\n    \n* \
+      \  Công thức tính lãi của tài khoản tiết kiệm có kì han\n    \n    FUNCTION\
+      \ Fn\\_get\\_Ic\\_intrate(p\\_brn in varchar2,\n    \n    p\\_acc in varchar2,\n\
+      \    \n    p\\_date in date) return number is\n    \n    &nbsp;\n    \n    l\\\
+      _brn varchar2(99);\n    \n    l\\_date date;\n    \n    l\\_open date default\
+      \ null;\n    \n    l\\_ccy varchar2(99) default 'VND';\n    \n    l\\_amount\
+      \ number default 0;\n    \n    l\\_ret\\_Rate number := 0;\n    \n    l\\_rec\\\
+      _acc STG\\_sttm\\_cust\\_account%rowtype;\n    \n    l\\_ude STG\\_ICTM\\_ACC\\\
+      _UDEVALS.ude\\_id%type := 'RATE';\n    \n    l\\_prod STG\\_ictb\\_acc\\_pr.PROD%type;\n\
+      \    \n    l\\_CONDKEY STG\\_ICTB\\_UDEVALS.COND\\_KEY%type;\n    \n    l\\\
+      _rate\\_code STG\\_ICTM\\_ACC\\_UDEVALS.RATE\\_CODE%type;\n    \n    l\\_UDE\\\
+      _VALUE STG\\_ICTM\\_ACC\\_UDEVALS.UDE\\_VALUE%type;\n    \n    l\\_count number\
+      \ := 0;\n    \n    L\\_OPEN\\_DT STG\\_ictm\\_acc.INT\\_START\\_DATE%type;\n\
+      \    \n    l\\_prod\\_code VARCHAR2(4);\n    \n    l\\_rule VARCHAR2(4);\n \
+      \   \n    l\\_count1 number := 0;\n    \n    V\\_PO NUMBER := 0;\n    \n   \
+      \ l\\_aclass VARCHAR2(99);\n    \n    l\\_rate\\_type VARCHAR2(99);\n    \n\
+      \    l\\_code VARCHAR2(10);\n    \n    l\\_check number := 0;\n    \n    l\\\
+      _khut number := 0;\n    \n    p\\_check\\_po number:=0;\n    \n    l\\_int\\\
+      _start\\_dt date;\n    \n    L\\_RATE\\_KKH number := 0;\n    \n    begin\n\
+      \    \n    \\-- dbms\\_output.put\\_line('start');\n    \n    \\-- check tai\
+      \ khoan tiet kiem bac thang\n    \n    if p\\_date is null then\n    \n    select\
+      \ max(PREV\\_WORKING\\_DAY)\n    \n    into l\\_date\n    \n    from sttm\\\
+      _dates@core /_linh sua lai lay thang tu core vi dong bo co khi chet ko kip_/\n\
+      \    \n    where RECORD\\_STAT = 'O'\n    \n    and AUTH\\_STAT = 'A'\n    \n\
+      \    and branch\\_Code = '000';\n    \n    else\n    \n    l\\_date := p\\_date;\n\
+      \    \n    end if;\n    \n    &nbsp;\n    \n    BEGIN\n    \n    SELECT a.branch\\\
+      _code,\n    \n    a.account\\_class,\n    \n    a.ccy,\n    \n    decode(a.ccy,\
+      \ 'VND', a.lcy\\_curr\\_balance, a.acy\\_curr\\_balance),\n    \n    a.ac\\\
+      _open\\_date,r.acclass\\_type\n    \n    INTO l\\_brn, l\\_aclass, l\\_ccy,\
+      \ l\\_amount, l\\_open, l\\_rate\\_type\n    \n    FROM stghost.STG\\_sttm\\\
+      _cust\\_account a\n    \n    left join lpbdw.snsp\\_acclass\\_rate r on a.account\\\
+      _class=r.account\\_class\n    \n    WHERE cust\\_ac\\_no = p\\_acc\n    \n \
+      \   and branch\\_code = p\\_brn;\n    \n    EXCEPTION\n    \n    WHEN no\\_data\\\
+      _found THEN\n    \n    l\\_brn := null;\n    \n    END;\n    \n    IF l\\_rate\\\
+      _type='BACTHANG' or l\\_aclass in ('V0ID44', 'V0CD45') THEN\n    \n    l\\_ret\\\
+      _Rate := Fn\\_get\\_Ic\\_interest\\_bt(p\\_brn, p\\_acc, l\\_date);\n    \n\
+      \    dbms\\_output.put\\_line('BACTHANH');\n    \n    \\--tiet kiem bao toan\
+      \ lin add vao ngay 2/10/2018 dc check lai tu 15/06\n    \n    \\--TIEN GUI BAO\
+      \ TOAN DN %75,%76. TIET KIEM BAO TOAN %74. TIEN GUI BAO TOAN CANHAN %81\n  \
+      \  \n    elsif l\\_rate\\_type='BAOTOAN' then\n    \n    l\\_ret\\_Rate := fn\\\
+      _get\\_ic\\_baotoan(p\\_brn, p\\_acc, l\\_date);\n    \n    \\-- END TIET KIEM\
+      \ BAC THANG\n    \n    ELSIF (l\\_aclass in ('VSAVDD', 'NSAVDD')) THEN\n   \
+      \ \n    l\\_ret\\_Rate := fn\\_get\\_ic\\_intrate\\_tkkkh(p\\_brn, p\\_acc,\
+      \ l\\_date);\n    \n    &nbsp;\n    \n    \\--dbms\\_output.put\\_line('fn\\\
+      _get\\_ic\\_intrate\\_tkkkh');\n    \n    ELSE\n    \n    dbms\\_output.put\\\
+      _line('KHAC:'||l\\_aclass);\n    \n    \\-- check tai khoan tiet kiem gui gop\n\
+      \    \n    begin\n    \n    select count(\\*)\n    \n    into l\\_count\n  \
+      \  \n    from STG\\_ictm\\_acc\n    \n    where rd\\_flag = 'Y'\n    \n    and\
+      \ p\\_acc = acc;\n    \n    exception\n    \n    when others then\n    \n  \
+      \  l\\_count := 0;\n    \n    end;\n    \n    &nbsp;\n    \n    if (l\\_count\
+      \ > 0) then\n    \n    \\-- LAY PRODUCT LAI\n    \n    &nbsp;\n    \n    BEGIN\n\
+      \    \n    SELECT rate\\_code, PROD, nvl(UDE\\_VALUE, 0)\n    \n    INTO l\\\
+      _rate\\_code, l\\_prod, l\\_UDE\\_VALUE\n    \n    FROM STG\\_ICTM\\_ACC\\_UDEVALS\n\
+      \    \n    WHERE ACC = p\\_acc\n    \n    AND UDE\\_ID = l\\_ude\n    \n   \
+      \ AND RECORD\\_STAT = 'O'\n    \n    AND AUTH\\_STAT = 'A'\n    \n    AND UDE\\\
+      _EFF\\_DT = (SELECT MAX(UDE\\_EFF\\_DT)\n    \n    FROM STG\\_ICTM\\_ACC\\_UDEVALS\n\
+      \    \n    WHERE ACC = p\\_acc\n    \n    AND UDE\\_ID = l\\_ude\n    \n   \
+      \ AND RECORD\\_STAT = 'O'\n    \n    AND AUTH\\_STAT = 'A'\n    \n    AND UDE\\\
+      _EFF\\_DT <= l\\_date)\n    \n    and not exists (select \\*\n    \n    from\
+      \ rptb\\_product\\_lai b\n    \n    where b.product\\_code = prod);\n    \n\
+      \    exception\n    \n    when others then\n    \n    l\\_rate\\_code := null;\n\
+      \    \n    l\\_prod := null;\n    \n    END;\n    \n    &nbsp;\n    \n    begin\n\
+      \    \n    SELECT rate\n    \n    INTO l\\_ret\\_Rate\n    \n    FROM STG\\\
+      _ICTB\\_UDEVALS\n    \n    WHERE PROD = l\\_prod\n    \n    and rate\\_code\
+      \ = l\\_rate\\_code\n    \n    and ude\\_id = l\\_ude\n    \n    AND COND\\\
+      _KEY = l\\_brn || p\\_acc\n    \n    AND UDE\\_EFF\\_DT =\n    \n    (SELECT\
+      \ MAX(UDE\\_EFF\\_DT)\n    \n    FROM STG\\_ICTB\\_UDEVALS\n    \n    WHERE\
+      \ PROD = l\\_prod\n    \n    and rate\\_code = l\\_rate\\_code\n    \n    and\
+      \ ude\\_id = l\\_ude\n    \n    AND COND\\_KEY = l\\_brn || p\\_acc\n    \n\
+      \    and UDE\\_EFF\\_DT <= l\\_date\n    \n    /\\*linh them vao ngay 03/10/2018\
+      \ de bat can tren cho cac tk add dong lai cua ngay tuong lai vao\n    \n   \
+      \ vidu: 000131870028 ngay 10/09 moi co hieu lcu nhung nga 07/09 no da add vao\
+      \ roi\\*/\n    \n    );\n    \n    EXCEPTION\n    \n    WHEN others then\n \
+      \   \n    l\\_ret\\_Rate := l\\_UDE\\_VALUE;\n    \n    END;\n    \n    \\--end;\n\
+      \    \n    \\-- dbms\\_output.put\\_line('tk gui gop');\n    \n    else\n  \
+      \  \n    &nbsp;\n    \n    \\-- LAY PRODUCT LAI\n    \n    \\--dbms\\_output.put\\\
+      _line('san pham con lai 1');\n    \n    begin\n    \n    select \\*\n    \n\
+      \    into l\\_rec\\_acc\n    \n    from STG\\_sttm\\_cust\\_account\n    \n\
+      \    where cust\\_ac\\_no = p\\_acc\n    \n    and branch\\_code = l\\_brn;\n\
+      \    \n    exception\n    \n    when others then\n    \n    begin\n    \n  \
+      \  dbms\\_output.put\\_line(sqlerrm);\n    \n    return 0;\n    \n    end;\n\
+      \    \n    &nbsp;\n    \n    end;\n    \n    &nbsp;\n    \n    if l\\_rec\\\
+      _acc.account\\_type = 'Y' then\n    \n    &nbsp;\n    \n    begin\n    \n  \
+      \  Select ude\\_value\n    \n    into l\\_ret\\_Rate\n    \n    from STG\\_ICTM\\\
+      _ACC\\_UDEVALS w\n    \n    where w.acc = p\\_acc\n    \n    and w.brn = l\\\
+      _BRN\n    \n    and UDE\\_ID = l\\_ude\n    \n    AND W.RECORD\\_STAT = 'O'\n\
+      \    \n    AND AUTH\\_STAT = 'A'\n    \n    and UDE\\_EFF\\_DT = (select max(ude\\\
+      _eff\\_dt)\n    \n    from STG\\_ICTM\\_ACC\\_UDEVALS w\n    \n    where w.acc\
+      \ = p\\_acc\n    \n    and w.brn = l\\_BRN\n    \n    and UDE\\_ID = l\\_ude\n\
+      \    \n    and ude\\_eff\\_dt <= l\\_date\n    \n    AND RECORD\\_STAT = 'O'\n\
+      \    \n    AND AUTH\\_STAT = 'A')\n    \n    and prod not in (select product\\\
+      _code from rptb\\_product\\_lai); -- haodc\n    \n    / _and not exists (select_\n\
+      \    \n    from rptb\\_product\\_lai b\n    \n    where b.product\\_code = prod);\\\
+      */\n    \n    exception\n    \n    when others then\n    \n    l\\_ret\\_Rate\
+      \ := 0;\n    \n    end;\n    \n    &nbsp;\n    \n    else\n    \n    l\\_count\
+      \ := 0;\n    \n    Select COUNT(\\*)\n    \n    into l\\_count\n    \n    from\
+      \ STG\\_ICTM\\_ACC\\_UDEVALS w\n    \n    where w.acc = p\\_acc\n    \n    and\
+      \ w.brn = l\\_BRN\n    \n    and UDE\\_ID = l\\_ude\n    \n    AND W.RECORD\\\
+      _STAT = 'O'\n    \n    AND AUTH\\_STAT = 'A'\n    \n    and UDE\\_EFF\\_DT =\
+      \ (select max(ude\\_eff\\_dt)\n    \n    from STG\\_ICTM\\_ACC\\_UDEVALS w\n\
+      \    \n    where w.acc = p\\_acc\n    \n    and w.brn = l\\_BRN\n    \n    \\\
+      --and UDE\\_ID = l\\_ude\n    \n    and ude\\_eff\\_dt <= l\\_date\n    \n \
+      \   AND W.RECORD\\_STAT = 'O'\n    \n    AND AUTH\\_STAT = 'A')\n    \n    and\
+      \ prod not in (select product\\_code from rptb\\_product\\_lai); -- haodc\n\
+      \    \n    &nbsp;\n    \n    if (l\\_count > 0) then\n    \n    &nbsp;\n   \
+      \ \n    \\---Nhân Edit 2018-12-31----------\n    \n    begin\n    \n    Select\
+      \ ude\\_value,rate\\_code\n    \n    into l\\_ret\\_Rate,l\\_rate\\_code\n \
+      \   \n    from STG\\_ICTM\\_ACC\\_UDEVALS w\n    \n    where w.acc = p\\_acc\n\
+      \    \n    and w.brn = l\\_BRN\n    \n    and UDE\\_ID = l\\_ude\n    \n   \
+      \ AND W.RECORD\\_STAT = 'O'\n    \n    AND AUTH\\_STAT = 'A'\n    \n    and\
+      \ UDE\\_EFF\\_DT = (select max(ude\\_eff\\_dt)\n    \n    from STG\\_ICTM\\\
+      _ACC\\_UDEVALS w\n    \n    where w.acc = p\\_acc\n    \n    and w.brn = l\\\
+      _BRN\n    \n    \\--and UDE\\_ID = l\\_ude\n    \n    and ude\\_eff\\_dt <=\
+      \ l\\_date\n    \n    AND W.RECORD\\_STAT = 'O'\n    \n    AND AUTH\\_STAT =\
+      \ 'A')\n    \n    and prod not in (select product\\_code from rptb\\_product\\\
+      _lai); -- haodc\n    \n    dbms\\_output.put\\_line('l\\_rate\\_code :' || l\\\
+      _rate\\_code||',l\\_ret\\_Rate:'||l\\_ret\\_Rate);\n    \n    IF (l\\_rate\\\
+      _code IS NOT NULL) THEN\n    \n    begin\n    \n    select DISTINCT nvl(RATE,\
+      \ 0)\n    \n    into L\\_RATE\\_KKH\n    \n    from STG\\_ictm\\_rates\n   \
+      \ \n    where rate\\_code = l\\_rate\\_code\n    \n    AND CCY\\_CODE = l\\\
+      _ccy\n    \n    and branch\\_code = l\\_BRN\n    \n    AND EFF\\_DT = (SELECT\
+      \ MAX(EFF\\_DT)\n    \n    FROM STG\\_ictm\\_rates\n    \n    WHERE RATE\\_CODE\
+      \ = l\\_rate\\_code\n    \n    AND CCY\\_CODE = l\\_ccy\n    \n    and branch\\\
+      _code = l\\_BRN\n    \n    and EFF\\_DT <= l\\_date)\n    \n    AND RECORD\\\
+      _STAT = 'O'\n    \n    AND AUTH\\_STAT = 'A';\n    \n    exception when others\
+      \ then\n    \n    L\\_RATE\\_KKH := 0;\n    \n    end;\n    \n    \\--dbms\\\
+      _output.put\\_line('l\\_rate\\_code :' || l\\_rate\\_code||',l\\_ret\\_Rate:'||l\\\
+      _ret\\_Rate);\n    \n    END IF;\n    \n    l\\_ret\\_Rate := l\\_ret\\_Rate\
+      \ + L\\_RATE\\_KKH;\n    \n    &nbsp;\n    \n    exception\n    \n    when others\
+      \ then\n    \n    l\\_ret\\_Rate := null;\n    \n    end;\n    \n    &nbsp;\n\
+      \    \n    else\n    \n    &nbsp;\n    \n    if l\\_prod is null then\n    \n\
+      \    BEGIN\n    \n    select PROD\n    \n    into l\\_prod\n    \n    from STG\\\
+      _ictm\\_acc\\_pr\n    \n    where acc = p\\_acc\n    \n    and brn = l\\_BRN\n\
+      \    \n    and prod not in (select product\\_code from rptb\\_product\\_lai);\n\
+      \    \n    EXCEPTION\n    \n    WHEN no\\_data\\_found THEN\n    \n    \\---dbms\\\
+      _output.put\\_line('l\\_aclass:'||l\\_aclass);\n    \n    \\---Nhân Edit 2019-02-27\n\
+      \    \n    begin\n    \n    if l\\_aclass in ('V0TDTN','N0TDTN') then\n    \n\
+      \    select PROD\n    \n    into l\\_prod\n    \n    from STG\\_ictb\\_acc\\\
+      _pr\n    \n    where acc = p\\_acc\n    \n    and brn = l\\_BRN\n    \n    and\
+      \ prod\\_type = 'I'\n    \n    and has\\_accr = 'Y'\n    \n    and rownum =\
+      \ 1\n    \n    and PROD='VVOS';\n    \n    else\n    \n    select PROD\n   \
+      \ \n    into l\\_prod\n    \n    from STG\\_ictb\\_acc\\_pr\n    \n    where\
+      \ acc = p\\_acc\n    \n    and brn = l\\_BRN\n    \n    and prod\\_type = 'I'\n\
+      \    \n    and has\\_accr = 'Y'\n    \n    and rownum = 1\n    \n    and prod\
+      \ not in (select product\\_code from rptb\\_product\\_lai); -- haodc\n    \n\
+      \    &nbsp;\n    \n    end if;\n    \n    &nbsp;\n    \n    EXCEPTION WHEN no\\\
+      _data\\_found THEN\n    \n    l\\_prod:='';\n    \n    END;\n    \n    END;\n\
+      \    \n    &nbsp;\n    \n    end if;\n    \n    &nbsp;\n    \n    begin\n  \
+      \  \n    select count(\\*)\n    \n    into v\\_po\n    \n    from s\\_potm\\\
+      _branch a\n    \n    where branch\\_code = l\\_brn\n    \n    and a.brn\\_type='PO';\n\
+      \    \n    if (v\\_po <> 0) then\n    \n    l\\_CONDKEY := 'ALL' || l\\_rec\\\
+      _acc.account\\_class ||\n    \n    l\\_rec\\_acc.ccy;\n    \n    else\n    \n\
+      \    l\\_CONDKEY := l\\_brn || l\\_rec\\_acc.account\\_class ||\n    \n    l\\\
+      _rec\\_acc.ccy;\n    \n    end if;\n    \n    &nbsp;\n    \n    &nbsp;\n   \
+      \ \n    Select UDE\\_VAL\n    \n    into l\\_ret\\_Rate\n    \n    from (SELECT\
+      \ /_\\+ INDEX\\_DESC(u PK\\_STG\\_ICTB\\_UDEVALS)_ /\n    \n    NVL(U.AMT, 0)\
+      \ + NVL(U.RATE, 0) +\n    \n    NVL(U.UDE\\_VARIANCE, 0) UDE\\_VAL\n    \n \
+      \   FROM STG\\_ICTB\\_UDEVALS U\n    \n    WHERE U.COND\\_TYPE = 1\n    \n \
+      \   AND U.COND\\_KEY = l\\_CONDKEY\n    \n    AND U.PROD = l\\_prod\n    \n\
+      \    AND U.UDE\\_ID = l\\_ude\n    \n    AND U.UDE\\_EFF\\_DT <= l\\_date\n\
+      \    \n    ORDER BY U.UDE\\_EFF\\_DT DESC)\n    \n    where rownum = 1;\n  \
+      \  \n    &nbsp;\n    \n    exception\n    \n    when no\\_data\\_found then\n\
+      \    \n    \\-- dbms\\_output.put\\_line('getting for all branch');\n    \n\
+      \    l\\_CONDKEY := 'ALL' || l\\_rec\\_acc.account\\_class ||\n    \n    l\\\
+      _rec\\_acc.ccy;\n    \n    \\--dbms\\_output.put\\_line('l\\_CONDKEY:' || l\\\
+      _CONDKEY);\n    \n    Select UDE\\_VAL\n    \n    into l\\_ret\\_Rate\n    \n\
+      \    from (SELECT /_\\+ INDEX\\_DESC(u PK\\_STG\\_ICTB\\_UDEVALS)_ /\n    \n\
+      \    NVL(U.AMT, 0) + NVL(U.RATE, 0) +\n    \n    NVL(U.UDE\\_VARIANCE, 0) UDE\\\
+      _VAL\n    \n    FROM STG\\_ICTB\\_UDEVALS U\n    \n    WHERE U.COND\\_TYPE =\
+      \ 1\n    \n    AND U.COND\\_KEY = l\\_CONDKEY\n    \n    AND U.PROD = l\\_prod\n\
+      \    \n    AND U.UDE\\_ID = l\\_ude\n    \n    AND U.UDE\\_EFF\\_DT <= l\\_date\n\
+      \    \n    ORDER BY U.UDE\\_EFF\\_DT DESC)\n    \n    where rownum = 1;\n  \
+      \  \n    &nbsp;\n    \n    end;\n    \n    &nbsp;\n    \n    end if;\n    \n\
+      \    \\-- end if null\n    \n    &nbsp;\n    \n    end if;\n    \n    end if;\n\
+      \    \n    &nbsp;\n    \n    \\-- tiennd thau chi\n    \n    \\--dbms\\_output.put\\\
+      _line('L\\_RATE\\_KKH :' || L\\_RATE\\_KKH||',l\\_BRN:'||l\\_BRN);\n    \n \
+      \   l\\_count := 0;\n    \n    select count(\\*)\n    \n    into l\\_count\n\
+      \    \n    from stg\\_getm\\_facility a,\n    \n    stg\\_getm\\_liab b,\n \
+      \   \n    STG\\_sttm\\_cust\\_account\\_linkages d\n    \n    /_,sttm\\_dates\
+      \ e linh bo_/\n    \n    where a.liab\\_id = b.id\n    \n    and b.liab\\_no\
+      \ = d.customer\\_no\n    \n    and linked\\_ref\\_no = a.line\\_code || a.line\\\
+      _serial\n    \n    /_and a.brn = e.branch\\_code linh bo_ /\n    \n    and d.cust\\\
+      _ac\\_no = p\\_acc\n    \n    and d.cust\\_ac\\_no in\n    \n    (select cust\\\
+      _ac\\_no\n    \n    FROM /_RPTB\\_DEPOSIT\\_OVERDRAFT\\_SINCE_/stg\\_deposit\\\
+      _overdraft\\_since\n    \n    WHERE BACKUP\\_DATE = l\\_date\n    \n    and\
+      \ cust\\_ac\\_no = p\\_acc)\n    \n    ;\n    \n    &nbsp;\n    \n    if l\\\
+      _count > 0 then\n    \n    &nbsp;\n    \n    l\\_ret\\_Rate := Fn\\_get\\_Ic\\\
+      _intrate\\_od(p\\_acc, l\\_date);\n    \n    &nbsp;\n    \n    else\n    \n\
+      \    \\-- THEM BIEN BO KHUT\n    \n    \\-- CHECK TAI KHOAN CO LA KHUT KHONG\n\
+      \    \n    dbms\\_output.put\\_line('khac hang uu tien');\n    \n    &nbsp;\n\
+      \    \n    begin\n    \n    SELECT b.rating\\_code, count(\\*)\n    \n    into\
+      \ l\\_code, l\\_check\n    \n    FROM STG\\_STTM\\_CUST\\_ACCOUNT A, STG\\_sttm\\\
+      _customer\\_rating B\n    \n    WHERE A.CUST\\_NO = B.CUSTOMER\\_NO\n    \n\
+      \    AND A.CUST\\_AC\\_NO = p\\_acc\n    \n    and b.val\\_dt = (select /\\\
+      *+ index(v,IDX$\\_0B2D0002 )\\*/ max(val\\_dt)\n    \n    from STG\\_sttm\\\
+      _customer\\_rating v\n    \n    where customer\\_no = b.customer\\_no\n    \n\
+      \    and val\\_dt <= p\\_date)\n    \n    GROUP BY b.rating\\_code;\n    \n\
+      \    exception\n    \n    when others then\n    \n    l\\_code := null;\n  \
+      \  \n    l\\_check := null;\n    \n    end;\n    \n    &nbsp;\n    \n    if\
+      \ (l\\_check > 0 and l\\_aclass in ('V0CNTN', 'V0CNNN')) then\n    \n    &nbsp;\n\
+      \    \n    begin\n    \n    select ude\\_value\n    \n    into l\\_khut\n  \
+      \  \n    from STG\\_sttm\\_rating\\_rate\n    \n    where aclass = l\\_aclass\n\
+      \    \n    and ccy\\_code = l\\_ccy\n    \n    and rating\\_code = l\\_code\n\
+      \    \n    and ude\\_eff\\_dt = (select max(ude\\_eff\\_dt)\n    \n    from\
+      \ STG\\_sttm\\_rating\\_rate v\n    \n    where aclass = l\\_aclass\n    \n\
+      \    and ccy\\_code = l\\_ccy\n    \n    and rating\\_code = l\\_code\n    \n\
+      \    and ude\\_eff\\_dt <= p\\_date);\n    \n    l\\_ret\\_Rate := l\\_ret\\\
+      _Rate + l\\_khut;\n    \n    dbms\\_output.put\\_line('l\\_ret\\_Rate:'||l\\\
+      _ret\\_Rate);\n    \n    EXCEPTION\n    \n    WHEN OTHERS THEN\n    \n    \\\
+      --return l\\_ret\\_Rate;\n    \n    null;\n    \n    END;\n    \n    end if;\n\
+      \    \n    &nbsp;\n    \n    \\------------------------------------\n    \n\
+      \    end if;\n    \n    &nbsp;\n    \n    END IF;\n    \n    &nbsp;\n    \n\
+      \    \\--COMMIT;\n    \n    \\-- tiennd luong tinh thau chi\n    \n    IF (l\\\
+      _aclass in ('V0ID44', 'V0CD45')) THEN\n    \n    l\\_count := 0;\n    \n   \
+      \ select count(\\*)\n    \n    into l\\_count\n    \n    from stg\\_getm\\_facility\
+      \ a,\n    \n    stg\\_getm\\_liab b,\n    \n    STG\\_sttm\\_cust\\_account\\\
+      _linkages d\n    \n    /_,sttm\\_dates e linh bo_/\n    \n    where a.liab\\\
+      _id = b.id\n    \n    and b.liab\\_no = d.customer\\_no\n    \n    and linked\\\
+      _ref\\_no = a.line\\_code || a.line\\_serial\n    \n    /_and a.brn = e.branch\\\
+      _code linh bo_/\n    \n    and d.cust\\_ac\\_no = p\\_acc\n    \n    and d.cust\\\
+      _ac\\_no in\n    \n    (select cust\\_ac\\_no\n    \n    FROM /_RPTB\\_DEPOSIT\\\
+      _OVERDRAFT\\_SINCE_/stg\\_deposit\\_overdraft\\_since\n    \n    WHERE BACKUP\\\
+      _DATE = l\\_date\n    \n    and cust\\_ac\\_no = p\\_acc)\n    \n    ;\n   \
+      \ \n    &nbsp;\n    \n    if l\\_count > 0 then\n    \n    &nbsp;\n    \n  \
+      \  l\\_ret\\_Rate := Fn\\_get\\_Ic\\_intrate\\_od(p\\_acc, l\\_date);\n    \n\
+      \    \\------------------------------------\\*/\n    \n    end if;\n    \n \
+      \   end if;\n    \n    &nbsp;\n    \n    \\--Check tk buu dien lay MARGIN cong\
+      \ vao\n    \n    select count(\\*) into p\\_check\\_po from\n    \n    /_sttm\\\
+      _branch linh sua_/ s\\_sttm\\_branch a where branch\\_code=p\\_brn and a.clearing\\\
+      _acc is null;\n    \n    if p\\_check\\_po > 0 then\n    \n    \\--dbms\\_output.put\\\
+      _line('XXX:' || l\\_ret\\_Rate);\n    \n    select a.int\\_start\\_date into\
+      \ l\\_int\\_start\\_dt from STG\\_ICTM\\_ACC a\n    \n    where a.acc=p\\_acc;\n\
+      \    \n    l\\_ret\\_Rate:=l\\_ret\\_Rate + fn\\_get\\_ic\\_margin(p\\_acc,l\\\
+      _int\\_start\\_dt,l\\_aclass,l\\_ccy,l\\_amount);\n    \n    \\--dbms\\_output.put\\\
+      _line('XXX:' || l\\_ret\\_Rate);\n    \n    end if;\n    \n    &nbsp;\n    \n\
+      \    return l\\_ret\\_Rate;\n    \n    exception\n    \n    when others then\n\
+      \    \n    /\\*if l\\_aclass not in('V0CN30','V0DN30','NMWALK','VMWALK','V0TG57',\n\
+      \    \n    'U0CN30','U0DN30','V0ID31','N0CD25','V0CD25') then\n    \n    dbms\\\
+      _output.put\\_line(p\\_acc);\n    \n    end if;\\*/\n    \n    return 0;\n \
+      \   \n    end Fn\\_get\\_Ic\\_intrate;"
+  - name: Mã chi nhánh gắn với tài khoản
+    description: ''
+  - name: Ngày đóng băng
+    description: ''
+  - name: Trạng thái tài khoản
+    description: ''
+  - name: Loại tài khoản
+    description: "Các loại tài khoản của khách hàng:\n\nTài khoản huy động có kì hạn\
+      \  \nTài khoản huy động không kì hạn\n\nTài khoản nostro\n\nTài khoản thấu chi"
+  - name: Phát sinh tăng trong ngày quy đổi
+    description: ''
+  - name: Nhân viên mở tài khoản
+    description: ''
+  - name: Ngày bắt đầu thấu chi
+    description: ''
+  - name: Diễn giải tài khoản
+    description: ''
+  nodes:
+  - name: Dữ liệu làm giàu
+    description: ''
+    terms:
+    - name: Cờ đánh dấu tài khoản tất toán trước hạn trong ngày
+      description: ''
+    - name: Cờ đánh dấu tài khoản tái tục trong ngày
+      description: ''
+    - name: Cờ đánh dấu tài khoản tất toán trong ngày
+      description: ''
+    - name: Cờ đánh dấu tài khoản mở mới trong ngày
+      description: ''
+  - name: Tiền gửi có kì hạn
+    description: ''
+    terms:
+    - name: Tài khoản có tự động tái tục hay không
+      description: ''
+    - name: Ngày tái tục
+      description: ''
+    - name: Ngày tái tục tiếp theo
+      description: ''
+    - name: Ngày bắt đầu tính lãi
+      description: ''
+    - name: Tài khoản tự động đóng khi đáo hạn hay không
+      description: ''
+    - name: Số sổ tiết kiệm
+      description: ''
+- name: Thông tin khách hàng
+  description: Thông tin khách hàng gồm khách hàng cá nhân và khách hàng doanh nghiệp
+  nodes:
+  - name: Khách hàng cá nhân
+    description: ''
+    terms:
+    - name: Căn cước công dân
+      description: ''
+    - name: Tên khách hàng
+      description: ''
+    - name: Địa chỉ cơ quan
+      description: ''
+    - name: Số người phụ thuộc
+      description: ''
+    - name: Ngày sinh
+      description: ''
+    - name: Tình trạng hôn nhân
+      description: ''
+    - name: Trình độ học vấn
+      description: ''
+    - name: Tên vợ/chồng
+      description: ''
+    - name: Sổ hộ khẩu/KT3
+      description: ''
+    - name: Số thẻ xanh
+      description: ''
+    - name: Địa chỉ tạm trú
+      description: ''
+    - name: Chức danh hiện tại của khách hàng tại nơi làm việc
+      description: ''
+    - name: Danh xưng
+      description: ''
+    - name: Passport
+      description: ''
+    - name: Chứng minh nhân dân
+      description: ''
+    - name: Số điện thoại nhận mật khẩu
+      description: ''
+    - name: Số điện thoại cơ quan
+      description: ''
+    - name: Địa chỉ email cá nhân
+      description: ''
+    - name: Địa chỉ email cơ quan
+      description: ''
+    - name: Địa chỉ thường trú
+      description: ''
+    - name: Biệt danh
+      description: Nickname
+    - name: Quốc tịch
+      description: ''
+    - name: Số điện thoại di động
+      description: ''
+    - name: Nơi cấp mã số thuế
+      description: ''
+    - name: Mã người hôn phối
+      description: ''
+    - name: Nguồn thu nhập chính
+      description: ''
+    - name: Số điện thoại nhà
+      description: ''
+    - name: Dân tộc
+      description: ''
+    - name: Số điện thoại nhận OTP
+      description: ''
+    - name: Giấy phép lái xe
+      description: ''
+    - name: Ngày hết hiệu lực Passport
+      description: ''
+    - name: Giấy khai sinh
+      description: ''
+    - name: Giới tính
+      description: ''
+    - name: Mã giấy phép hành nghề
+      description: ''
+    - name: Địa chỉ nhà riêng
+      description: ''
+    - name: Thẻ bảo hiểm y tế
+      description: ''
+    - name: Ngành nghề của khách hàng
+      description: ''
+  - name: Phân loại thông tin khách hàng
+    description: ''
+    terms:
+    - name: Thông tin bảo mật
+      description: ''
+    - name: Thông tin nhạy cảm
+      description: ''
+    - name: Thông tin bảo mật cao
+      description: ''
+    - name: Thông tin cá nhân
+      description: ''
+  - name: Khách hàng doanh nghiệp
+    description: ''
+    terms:
+    - name: Tên giao dịch đầy đủ của KH tổ chức
+      description: ''
+    - name: Số điện thoại cố định
+      description: ''
+    - name: Loại tiền của vốn điều lệ
+      description: ''
+    - name: Tên cổ đông 10%
+      description: Tên cá nhân/tổ chức là cổ đông nắm giữ trên 10% cổ phần và có yếu
+        tố Hoa Kỳ
+    - name: Số lượng nhân viên
+      description: ''
+    - name: Giá trị tài sản ròng
+      description: ''
+    - name: Số fax
+      description: ''
+    - name: Số điện thoại di động
+      description: ''
+    - name: Tên tiếng nước ngoài của KH tổ chức
+      description: ''
+    - name: Ngành nghề kinh doanh chính
+      description: ''
+    - name: Vốn tự có
+      description: ''
+    - name: Mã giấy phép đăng kí kinh doanh
+      description: ''
+    - name: Tên của Kế toán trưởng
+      description: ''
+    - name: Ngày hết hiệu lực của giấy đăng ký hoạt động của tổ chức nước ngoài tại
+        Việt Nam
+      description: ''
+    - name: Ngày thành lập doanh nghiệp
+      description: ''
+    - name: Tên người đại diện hợp pháp
+      description: ''
+    - name: Mã cổ đông 10%
+      description: Mã cá nhân/tổ chức là cổ đông nắm giữ trên 10% cổ phần và có yếu
+        tố Hoa Kỳ
+    - name: Địa chỉ email của tổ chức
+      description: ''
+    - name: Địa chỉ đặt trụ sở chính
+      description: ''
+    - name: Nơi cấp giấy đăng ký kinh doanh
+      description: ''
+    - name: Tên viết tắt của KH tổ chức
+      description: ''
+    - name: Tên Công ty mẹ
+      description: ''
+    nodes:
+    - name: khách hàng tổ chức tín dụng
+      description: ''
+      terms:
+      - name: Mã tổ chức tín dụng
+        description: ''
+  - name: Thông tin tham chiếu
+    description: Các thông tin mô tả thêm của một số term của khách hàng, vị dụ ngành
+      nghề cấp 1,2,3,4..
+    terms:
+    - name: Nghề nghiệp_Cấp I
+      description: ''
+    - name: Nghề nghiệp_Cấp IV
+      description: ''
+    - name: Ngành kinh doanh chính - Ngành cấp I
+      description: ''
+    - name: Nghề nghiệp_Cấp II
+      description: ''
+    - name: Nghề nghiệp_Cấp V
+      description: ''
+    - name: Nghề nghiệp_Cấp III
+      description: ''
+  - name: Thông tin chung
+    description: ''
+    terms:
+    - name: Trạng thái khách hàng
+      description: 'Trạng thái của mã khách hàng trên hệ thống gồm: còn hoạt động
+        (O) hoặc đã đóng (C)'
+    - name: Mã số thuế
+      description: ''
+    - name: Nơi cấp mã số thuế
+      description: ''
+    - name: Loại khách hàng
+      description: 'Gồm : cá nhân (I), doanh ngiệp (C) và tổ chức tín dụng(B)'
+    - name: Cờ xác định khách hàng cư trú
+      description: Fatca
+    - name: Đia chỉ liên hệ
+      description: ''
+    - name: Ngày cấp mã số thuế
+      description: Linhnh
+    - name: Chi nhánh mở khách hàng
+      description: Chi nhánh thực hiện mở mã cif, mỗi khách hàng chỉ có duy nhất một
+        chi nhánh mở.
+    - name: Nhân viên mở cif
+      description: Nhân viên phụ trách mở tài khoản khách hàng
+    - name: Tên đầy đủ của khách hàng
+      description: Họ và tên của khách hàng đối với khách hàng cá nhân hoặc tên đầy
+        đủ của doanh ngiệp và tổ chức tài chính.
+    - name: Phân khúc khách hàng
+      description: ''
+    - name: Mã khách hàng
+      description: Số định danh của mỗi khách hàng trên hệ thống ngân hàng. Số này
+        có thể khác nhau cho các hệ thống khách nhau như core bank, card, los... Mã
+        này đại diện cho khách hàng để lưu các giao dịch trên hệ thống như các giao
+        dịch liên quan tới tài khoản, khoản vay, LC, BG
+    - name: Ngày mở cif
+      description: Ngày khách hàng mở mã khách hàng.
+    nodes:
+    - name: Thông tin liên quan tới tài sản đảm bảo
+      description: ''
+      terms:
+      - name: Hạn mức khách hàng
+        description: ''
+  - name: Thông tin làm giàu
+    description: ''
+    terms:
+    - name: KH có tiền gửi
+      description: ''
+    - name: Ngành kinh doanh chính - Ngành cấp IV
+      description: ''
+    - name: Tên mẹ
+      description: ''
+    - name: Ngành kinh doanh khác - Ngành cấp III
+      description: ''
+    - name: Ngành kinh doanh chính - Ngành cấp III
+      description: ''
+    - name: Tên cha
+      description: ''
+    - name: Ngành kinh doanh khác - Ngành cấp II
+      description: ''
+    - name: Ngành kinh doanh khác - Ngành cấp I
+      description: ''
+    - name: Số điện thoại nhận thông báo số dư SMS KHDN
+      description: ''
+    - name: Tình trạng sở hữu nhà cửa
+      description: ''
+    - name: Ngành kinh doanh khác - Ngành cấp V
+      description: ''
+    - name: Ngành kinh doanh chính - Ngành cấp II
+      description: ''
+    - name: Thu nhập của hộ gia đình/tháng
+      description: ''
+    - name: Ngành kinh doanh khác - Ngành cấp IV
+      description: ''
+    - name: KH có khoản vay
+      description: ''
+- name: Thông tin khoản vay
+  description: ''
+  terms:
+  - name: Ngày tạo
+    description: Ngày tạo khoản vay trên hệ thống.
+  - name: Trạng thái khoản vay
+    description: ''
+  - name: Số hợp đồng vay
+    description: ''
+  - name: Trạng thái duyệt
+    description: ''
+  - name: Mã chi nhánh tạo khoản vay
+    description: ''
+  - name: Ngày hiệu lực
+    description: 'Ngày hiệu lực của khoản vay, ngày bắt đầu tính lãi.
+
+
+      &nbsp;'
+  - name: Số khế ước nhận nợ
+    description: ''
+  - name: Số tài khoản vay
+    description: Là số tự sinh của hệ thống, xác định tính unique của khoản vay trên
+      hệ thống
+  - name: Số tiền duyệt vay
+    description: ''
+  - name: Nhóm nợ
+    description: Nhóm nợ hiện tại của khoản vay
+  - name: Ngày đáo hạn
+    description: 'Ngày đáo hạn của khoản vay.
+
+
+      &nbsp;'
+  nodes:
+  - name: Lịch trả nợ
+    description: ''
+    terms:
+    - name: Số ngày ân hạn của kì trả nợ
+      description: Khoảng thời gian tính từ khi ngân hàng giải ngân khoản vay đến
+        khi khách hàng bắt đầu trả nợ gốc, như được thỏa thuận trong hợp đồng tín
+        dụng. Trong thời gian này, khách hàng không cần trả nợ gốc, nhưng vẫn phải
+        trả lãi theo điều khoản đã thỏa thuận từ trước.
+    - name: Số tiền lãi phải trả
+      description: Số tiền lãi phải trả trong kỳ trả nợ
+    - name: Số tiền lãi phạt lãi phải trả
+      description: Lãi chậm trả theo mức lãi suất do tổ chức tín dụng và khách hàng
+        thỏa thuận tương ứng với số tiền lãi và thời gian chậm trả lãi
+    - name: Số tiền gốc phải trả
+      description: Số tiền gốc phải trả trong kỳ trả nợ
+    - name: Ngày bắt đầu kì trả nợ
+      description: Ngày bắt đầu kì trả nợ
+    - name: Ngày kết thúc kì trả nợ
+      description: Ngày kết thúc kì trả nợ
+    - name: Ngày phải trả
+      description: ''
+    - name: Số tiền lãi phạt gốc phải trả
+      description: Lãi chậm trả theo mức lãi suất do tổ chức tín dụng và khách hàng
+        thỏa thuận tương ứng với số tiền gốc và thời gian chậm trả
+- name: Thông tin giao dịch
+  description: ''
+  nodes:
+  - name: Thông tin giải ngân
+    description: ''
+    terms:
+    - name: Hình thức giải ngân
+      description: ''
+    - name: Ngày giải ngân
+      description: Ngày khoản vay được giải ngân.
+    - name: Số tiền giải ngân
+      description: Số tiền được giải ngân.
+  - name: Thông tin thu nợ
+    description: ''
+    terms:
+    - name: Số tiền phải thu quy đổi
+      description: Số tiền phải thu đã quy đổi sang VND
+    - name: Amount_tag
+      description: 'tag diễn giải cho số tiền. list amount tags hard code tại Oracle:
+        [https://docs.oracle.com/en/industries/financial-services/banking-treasury-management/14.7.2.0.0/trfxm/amount-tags.html](https://docs.oracle.com/en/industries/financial-services/banking-treasury-management/14.7.2.0.0/trfxm/amount-tags.html)'
+    - name: Mã tiền ghi có
+      description: mã tiền của giao dịch ghi có
+    - name: Số định danh ENTRY_SR_NO
+      description: ''
+    - name: Số chứng từ ghi nợ
+      description: Số chứng từ của giao dịch ghi nợ
+    - name: Số tiền phải thu nguyên tệ
+      description: Số tiền phải thu nguyên tệ của khoản vay
+    - name: Số chứng từ ghi có
+      description: Số chứng từ của giao dịch ghi có
+    - name: Chi nhánh của tài khoản ghi nợ
+      description: chi nhánh mà khoảng nợ được ghi nhận
+    - name: Mã trn_code ghi nợ
+      description: mã giao dịch (transaction code) của giao dịch ghi nợ
+    - name: Số tài khoản ghi nợ
+      description: Số tài khoản giao dịch ghi nợ
+    - name: Nhân viên làm giao dịch
+      description: Nhân viên làm giao dịch
+    - name: Số tài khoản ghi có
+      description: Số tài khoản giao dịch ghi có
+    - name: Mã tiền tệ ghi nợ
+      description: mã tiền tệ của giao dịch ghi nợ
+    - name: Số tài khoản thu nợ
+      description: Số tài khoản thu nợ
+    - name: Nhân viên duyệt giao dịch
+      description: Nhân viên duyệt giao dịch
+    - name: Mã trn_code ghi có
+      description: mã giao dịch (transaction code) của giao dịch ghi có
+    - name: Diễn giải giao dịch
+      description: diễn giải hoặc mô tả cho giao dịch
+    - name: Event_code
+      description: code của các sự kiện gây thay đổi các trường kế toán, khoảng tiền,
+        charge ....
+    - name: Loại hình thu nợ
+      description: "hình thức thanh toán của giao dịch trả nợ:\n\n1.  trích chuyển\
+        \ từ tài khoản ghi nợ\n    \n2.  là nộp tiền tài quầy"
+    - name: Mã chi nhánh ghi có
+      description: mã chi nhánh ghi nhận giao dịch ghi có của giao dịch thu nợ
+    - name: Số tiền đã thu
+      description: Số tiền đã thu
+- name: Thông tin chi nhánh
+  description: ''
+  terms:
+  - name: Tên chi nhánh
+    description: Là tên được công bố chính thức website của ngân hàng của từng chi
+      nhánh
+  - name: Số fax
+    description: Mã fax của từng chi nhánh
+  - name: Phòng giao dịch
+    description: Là loại chi nhánh chỉ có một phần chức năng của chi nhánh quản lí,
+      ví dụ chỉ có thể làm các nghiệp vụ huy đồng mà không thể duyệt khoản vay, LC,
+      ..Các khoản phê duyệt phải được trình lên chi nhánh quản lí.
+  - name: Địa chỉ chi nhánh
+    description: Là địa chỉ đầy đủ, bao gồm số nhà, đường, tên phường,huyên/quận và
+      tỉnh/thành phố
+  - name: Phòng giao dịch đặc thù
+    description: Được thành lập với loại hình là phòng giao dịch ( [@Loại chi nhánh](urn:li:glossaryTerm:e6151351-fb5d-49f3-b286-4dc2b4eb5099))
+      nhưng sau đó được nâng cấp lên thành chi nhánh ( [@Loại chi nhánh](urn:li:glossaryTerm:e6151351-fb5d-49f3-b286-4dc2b4eb5099))
+      . Danh sách các phòng giao dịch đặc thù có thể được quản lí bằng file bên ngoài
+      hệ thống
+  - name: Mã chi nhánh
+    description: "*   Mã định danh của mỗi chi nhánh trong trong bộ ngân hàng.\n \
+      \   \n*   Khái niệm này cũng sẽ bao gồm luôn cho các scenario cụ thể của chi\
+      \ nhánh (gọi là vai trò của chi nhánh trong từng hoạt động cụ thể của ngân hàng)\
+      \ . ví dụ : chi nhánh mở khoản vay, chi nhánh mở tài khoản khách hàng, chi nhánh\
+      \ mở khách hàng, chi nhánh giải ngân, chi nhánh thu nợ, chi nhánh chuyển tiền\
+      \ đi, chi nhánh nhận tiền.... Các scenario này sẽ xuất hiện như các term tại\
+      \ các term group khác nhau và sẽ được contains bở term \"mã chi nhánh\".\n \
+      \   \n*   Mã này cũng được xem như đại diện cho thực thể chi nhánh. Khi nói\
+      \ về các scenario ví dụ: \" chi nhánh quản lí khoản vay\" thì được hiểu bao\
+      \ gồm các thông cơ bản để xác định chi nhánh đó là chi nhánh nào( bao gồm toàn\
+      \ bộ các term trong term group \"Thông tin chi nhánh\")"
+  - name: Điện thoại liên hệ
+    description: Số điện thoại/ hoặc di động bàn để liên lạc được với chi nhánh đó
+  - name: Chi nhánh quản lí
+    description: Cấp cha của các chi nhánh. Các chi nhánh quản lí [@Phòng giao dịch](urn:li:glossaryTerm:6b7049b2-4858-47e6-a9ff-cf2547e57dcf)
+      trực thuộc hoặc là về khía cạnh hội sở là cấp cha của các chi nhánh.
+  - name: Loại chi nhánh
+    description: "gồm các loại sau:\n\n*   chi nhánh\n    \n*   phòng giao dịch\n\
+      \    \n*   hội sở"
+- name: Thông tin tham chiếu
+  description: ''
+  terms:
+  - name: Cờ đánh dấu duplicate
+    description: 'Giá trị phát sinh trong quá trình match and merge của project MDM.
+      Dùng để đánh dấu xem một khách hàng có bị dup với khách hàng khác trong hệ thống
+      hay không.
+
+
+      Các tiêu chi đánh giá duplicate được quy định ở bộ rule match and merge thể
+      hiện trên dataiku hoặc workflow tren PBM'
+  - name: Cờ đánh dấu golden record
+    description: 'Một dòng dữ liệu được xem là golden nếu tất cả field dược thông
+      qua check valid không bị invalid, thông qua quá trình match and merge mà không
+      bị duplicate với khách hàng nào. Dòng golden là tiêu chuẩn đánh giá 1 khách
+      hàng với các thông tin là đúng đắn nhất, cập nhật mới nhất và duy nhất trên
+      toàn bộ các source của ngân hàng.
+
+
+      Cờ đánh dâu trong colum: golden\_record=1 --> golden, golden\_record=0 --> not
+      golden
+
+
+      Các cờ liên quan gồm total\_error\_cnt và has\_duplicate.'
+  - name: Thời gian cập nhật gần nhất
+    description: Là thời gian gần nhất dữ liệu có thay dổi. Có thể được set cho 1
+      column hoặc 1 row dữ liệu
+  - name: Số lượng lỗi của field KDI/KDC
+    description: Tổng số lượng lỗi của một field ( master list) trong project MDM.
+      Mỗi một field được gắn với một hoặc một số rule nhất định. Trong quá trình chạy
+      validate thì nếu filed đó phát sinh lỗi thì ứng với mỗi rule sẽ được đêm là
+      một lỗi. Tổng lỗi theo rule sẽ được cập nhật vào các field có hậu tố _ERR_\_CNT
+  - name: Load date
+    description: Là thời gian dòng dữ liệu xuất hiện trên hệ thống, tính theo thời
+      gian setup của hệ thống
+  - name: Ngày dữ liệu
+    description: Được sử dụng đánh dấu thời điểm ( thoe ngày) mà dòng dữ liệu có hiệu
+      lực. Dùng lưu trữ theo dạng snapshot/ incremental của dữ liệu theo thời gian
+      là ngày. Xuất hiện trong bảng fact, bảng snapshot hoặc các bảng cần lưu trữ
+      dữ liệu thành từng bộ độc lập theo gian với nhau,
+  - name: Mã bưu điện
+    description: ''
+  - name: Trạng thái
+    description: Trạng thái còn hoạt động hay đã đóng. Trạng thái chung của các entity
+      trong toàn bộ domain. Gồm tài khoản, khách hàng ... hoặc bất kì các entity nào
+      được cài đặt.
+  nodes:
+  - name: Thông tin vùng miền Việt Nam
+    description: ''
+    terms:
+    - name: Tên xã/phường
+      description: ''
+    - name: Mã khu vực
+      description: ''
+    - name: Địa chỉ cụ thể
+      description: ''
+    - name: Tên tỉnh/thành phố
+      description: ''
+    - name: Tên quận/huyện
+      description: ''
+    - name: Tên khu vực
+      description: ''
+    - name: Mã tỉnh/thành phố
+      description: ''
+    - name: Mã quận/huyện
+      description: ''
+    - name: Mã xã/phường
+      description: ''
+  - name: Thông tin tiền tệ
+    description: ''
+    terms:
+    - name: Kiểu làm tròn lên hay xuống
+      description: ''
+    - name: Mã tiền tệ bằng chữ
+      description: ''
+    - name: Mã tiền tệ bằng số
+      description: ''
+    - name: Đơn vị làm tròn
+      description: Đơn vị làm tròn ( ngàn, trăm, chục, đơn vị ..)
+    - name: Phần lẻ của tiền tệ
+      description: Số lượng chữ số thập phân sau dấu phẩy động
+    - name: Trạng thái tiền tệ
+      description: ''
+    - name: Ký hiệu tiền tệ
+      description: ''
+    - name: Tên đầy đủ
+      description: ''
+    - name: Ký hiệu tiền tệ bằng chữ
+      description: ''
+    nodes:
+    - name: Thông tin tỷ giá
+      description: ''
+      terms:
+      - name: Tỷ giá standard mid_rate quy đổi theo USD
+        description: ''
+      - name: Tỷ giá standard sell_rate quy đổi theo USD
+        description: ''
+      - name: Tỷ giá standard buy_rate quy đổi theo VND
+        description: ''
+      - name: Tỷ giá standard buy_rate quy đổi theo USD
+        description: ''
+      - name: Chi nhánh
+        description: ''
+      - name: Tỷ giá transfer sell_rate quy đổi theo USD
+        description: ''
+      - name: Tỷ giá standard mid_rate quy đổi theo VND
+        description: ''
+      - name: Tỷ giá transfer buy_rate quy đổi theo USD
+        description: ''
+      - name: Tỷ giá transfer mid_rate quy đổi theo USD
+        description: ''
+      - name: Tỷ giá tranfer mid_rate quy đổi theo VND
+        description: ''
+      - name: Tỷ giá standard sell_rate quy đổi theo VND
+        description: ''
+      - name: Tỷ giá tranfer sell_rate quy đổi theo VND
+        description: ''
+      - name: Tỷ giá transfer buy_rate quy đổi theo VND
+        description: ''
+      - name: Ngày hiệu lực của tỷ giá
+        description: ''
+  - name: Thông tin quốc gia
+    description: ''
+    terms:
+    - name: Tên quốc gia
+      description: ''
+    - name: Châu lục
+      description: ''
+    - name: Mã quốc gia
+      description: ''
+- name: Thông tin sản phẩm
+  description: ''
+  nodes:
+  - name: Sản phẩm tiền gửi
+    description: ''
+    terms:
+    - name: Lãi suất gắn với sản phẩm
+      description: ''
+    - name: Ngày kết thúc sản phẩm
+      description: ''
+    - name: Kì hạn gửi tối thiểu
+      description: ''
+    - name: Mã sản phẩm
+      description: ''
+    - name: Ngày hiệu lực của sản phẩm
+      description: ''
+    - name: Trạng thái
+      description: ''
+    - name: Tài khoản kế toán hạch toán gốc
+      description: ''
+    - name: Loại sản phẩm
+      description: Sản phẩm tiền gửi có kì hạn và không kì hạn
+    - name: Diễn giải
+      description: ''
+    - name: Hình thức tái tục lãi
+      description: ''
+    - name: Loại tiền gắn với sản phẩm
+      description: ''
+    - name: Diễn giải category
+      description: ''
+    - name: Category sản phẩm
+      description: ''
+    - name: Giá trị theo loại kì hạn
+      description: 'Giá trị theo đơn vị ở loại kì hạn. Ví dụ: loại kì hạn ="D", giá
+        trị 7 nghĩa là kì hạn 7 ngày.'
+    - name: Tài khoản kế toán hạch toán lãi
+      description: ''
+    - name: Đôi tượng áp dụng
+      description: Chỉ định đối tượng áp dùng là cho cá nhân, doanh nghiệp hay tổ
+        chức tín dụng
+    - name: Hình thức trả lãi
+      description: Lĩnh lãi hàng tháng hay lĩnh lãi cuối kì
+    - name: Cam kết không hủy ngang
+      description: Cam kết không tất toán trước hạn
+    - name: Số kì hạn gửi
+      description: Theo loại kì hạn gửi
+    - name: Cờ xác định tái tục
+      description: ''
+    - name: Số tiền gửi tối thiểu
+      description: ''
+    - name: Loại kì hạn gửi
+      description: Là kì hạn theo ngày, theo tuần, theo tháng hay theo năm
+  - name: Sản phẩm vay
+    description: ''
+    terms:
+    - name: Tài khoản kế toán thu lãi phạt lãi
+      description: ''
+    - name: Biên độ thả nổi
+      description: ''
+    - name: Thời hạn tối thiếu của lần giải ngân đầu tiên
+      description: ''
+    - name: Tài khoản kế toán thu gốc
+      description: ''
+    - name: Diễn giải của mã sản phẩm
+      description: ''
+    - name: Tài khoản kế toán thu lãi
+      description: ''
+    - name: Lãi suất ưu đãi
+      description: ''
+    - name: Tần suất trả gốc
+      description: Trả gốc theo tháng hay theo quý
+    - name: Loại hình giải ngân
+      description: Giải ngân từng phần hay giải ngân toàn bộ
+    - name: Kì hạn khoản vay
+      description: ''
+    - name: Mã sản phẩm vay
+      description: ''
+    - name: Tài khoản kế toán thu lãi phạt gốc
+      description: ''
+    - name: Phần trăm lãi phạt gốc
+      description: ''
+    - name: Cờ đánh dấu sản phẩm tín chấp
+      description: ''
+    - name: Mã category
+      description: ''
+    - name: Cờ đánh dấu khoản vay ân hạn
+      description: ''
+    - name: Diễn giải category
+      description: ''
+    - name: Phần trăm lãi phạt lãi
+      description: ''
+    - name: Mục đích vay
+      description: ''
+    - name: Số ngày của năm dùng áp dụng tính lãi
+      description: Tính lãi trên 360 hay 365 ngày
+    - name: Loại tiền gắn với sản phẩm
+      description: ''
+    - name: Tần suất trả lãi
+      description: Trả lãi theo tháng hay theo quý
+    - name: Lãi suất cơ bản
+      description: ''
+    - name: Thời hạn của lãi suất ưu đãi
+      description: ''
+    - name: Loại tần suất trả lãi
+      description: Trã lãi theo tháng hay theo quý
+    - name: Hạn mức sản phẩm
+      description: ''
+  - name: Sản phẩm khác
+    description: Các sản phẩm còn lại ngoài huy động và cho vay. Bao gồm sản phẩm
+      bảo lãnh, LC, các sản phẩm nhờ thu , nhờ chi
+    terms:
+    - name: Phân hệ
+      description: ''
+    - name: Mã sản phẩm
+      description: 'Các sản phẩm còn lại của banking: bảo lãnh , LC, nhờ thu, nhờ
+        chi'
+    - name: Trạng thái
+      description: ''
+    - name: Ngày kết thúc
+      description: ''
+    - name: Diễn giải mã sản phẩm
+      description: ''
+    - name: Ngày hiệu lực
+      description: ''
+- name: Thông tin tài sản đảm bảo
+  description: ''
+  terms:
+  - name: Diễn giải tài sản đảm bảo
+    description: ''
+  - name: Giá trị phần trăm còn lại của tài sản
+    description: Haircut
+  - name: Giá trị phần trăm đã dùng đảm bảo cho khoản vay
+    description: ''
+  - name: Mã tài sản đảm bảo
+    description: ''
+  - name: Loại giấy tờ chủ sở hữu bên thứ ba
+    description: ''
+  - name: Phân nhóm tài sản đảm bảo
+    description: category
+  - name: Giá trị tài sản đã tham gia vào khoản vay
+    description: ''
+  - name: Diễn giải phân nhóm tài sản đảm bảo
+    description: ''
+  - name: Ngày hiệu lực
+    description: ''
+  - name: Thông tin giấy tờ chủ sở hữu bên thứ ba
+    description: ''
+  - name: Ngày hết hiệu lực
+    description: ''
+  - name: Tên chủ sở hữu bên thứ ba
+    description: ''
+  - name: Giá trị tài sản đảm bảo
+    description: ''
+  - name: Trạng thái tài sản đảm bảo
+    description: ''
+  - name: Loại tài sản đảm bảo
+    description: ''
+  nodes:
+  - name: Thông tin Pool
+    description: ''
+    terms:
+    - name: Mã pool
+      description: liên kết khách hàng và tài sản đảm bảo , để phân bổ giá trị tài
+        sản cho khoản vay của khách hàng.
+    - name: Giá trị pool
+      description: ''
+    - name: Hạn mức cấp cho pool
+      description: ''
+    - name: Diễn giải pool
+      description: ''
+  - name: Thông tin facility
+    description: ''
